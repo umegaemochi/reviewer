@@ -1,16 +1,22 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { reviewApi } from '../api';
 
 function ReviewList() {
   const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchReviews = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      const response = await fetch('http://localhost:8080/api/reviews');
-      const data = await response.json();
+      const data = await reviewApi.getAll();
       setReviews(data);
-    } catch (error) {
-      console.error('データの取得に失敗しました:', error);
+    } catch (err) {
+      setError('データの取得に失敗しました。サーバーの状態を確認してください。');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -21,16 +27,16 @@ function ReviewList() {
   const handleDelete = async (id) => {
     if (!window.confirm('本当に削除しますか？')) return;
     try {
-      const response = await fetch(`http://localhost:8080/api/reviews/${id}`, {
-        method: 'DELETE',
-      });
-      if (response.ok) {
-        fetchReviews();
-      }
-    } catch (error) {
-      console.error('削除に失敗しました:', error);
+      await reviewApi.delete(id);
+      alert('削除しました。');
+      fetchReviews();
+    } catch (err) {
+      alert(`削除に失敗しました: ${err.message}`);
     }
   };
+
+  if (loading) return <p>データを読み込み中...</p>;
+  if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
   return (
     <div>

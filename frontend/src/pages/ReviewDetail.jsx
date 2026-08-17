@@ -1,45 +1,47 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import ReviewForm from '../components/ReviewForm';
+import { reviewApi } from '../api';
 
 function ReviewDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [review, setReview] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchReview = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/reviews/${id}`);
-        if (response.ok) {
-          const data = await response.json();
-          setReview(data);
-        }
-      } catch (error) {
-        console.error('詳細の取得に失敗しました:', error);
+        const data = await reviewApi.getById(id);
+        setReview(data);
+      } catch (err) {
+        setError('該当するレビューが見つかりません。');
+      } finally {
+        setLoading(false);
       }
     };
     fetchReview();
   }, [id]);
 
-  // 更新処理
   const handleUpdate = async (updatedReview) => {
+    setError(null);
     try {
-      const response = await fetch(`http://localhost:8080/api/reviews/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedReview),
-      });
-      if (response.ok) {
-        alert('更新しました！');
-        navigate('/'); // 一覧に戻る
-      }
-    } catch (error) {
-      console.error('更新に失敗しました:', error);
+      await reviewApi.update(id, updatedReview);
+      alert('更新しました！');
+      navigate('/');
+    } catch (err) {
+      setError(`更新に失敗しました: ${err.message}`);
     }
   };
 
-  if (!review) return <p>読み込み中...</p>;
+  if (loading) return <p>読み込み中...</p>;
+  if (error) return (
+    <div>
+      <p style={{ color: 'red' }}>{error}</p>
+      <Link to="/">← 一覧に戻る</Link>
+    </div>
+  );
 
   return (
     <div>

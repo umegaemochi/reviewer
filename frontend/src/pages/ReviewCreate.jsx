@@ -1,22 +1,24 @@
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import ReviewForm from '../components/ReviewForm';
+import { reviewApi } from '../api';
 
 function ReviewCreate() {
   const navigate = useNavigate();
+  const [error, setError] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleCreate = async (newReview) => {
+    setSubmitting(true);
+    setError(null);
     try {
-      const response = await fetch('http://localhost:8080/api/reviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newReview),
-      });
-      if (response.ok) {
-        alert('レビューを投稿しました！');
-        navigate('/'); // 一覧画面に遷移
-      }
-    } catch (error) {
-      console.error('投稿に失敗しました:', error);
+      await reviewApi.create(newReview);
+      alert('レビューを投稿しました！');
+      navigate('/');
+    } catch (err) {
+      setError(`投稿に失敗しました: ${err.message}`);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -24,7 +26,8 @@ function ReviewCreate() {
     <div>
       <Link to="/" style={{ display: 'inline-block', marginBottom: '15px' }}>← 一覧に戻る</Link>
       <h2>新規レビュー投稿</h2>
-      <ReviewForm onSubmit={handleCreate} buttonText="投稿する" />
+      {error && <p style={{ color: 'red', background: '#ffe6e6', padding: '10px', borderRadius: '4px' }}>{error}</p>}
+      <ReviewForm onSubmit={handleCreate} buttonText={submitting ? '送信中...' : '投稿する'} />
     </div>
   );
 }

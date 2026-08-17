@@ -1,9 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function ReviewForm({ onSubmit, initialData = { author: '', rating: 5, content: '' }, buttonText = '投稿する' }) {
-  const [author, setAuthor] = useState(initialData.author);
-  const [rating, setRating] = useState(initialData.rating);
-  const [content, setContent] = useState(initialData.content);
+  const [author, setAuthor] = useState(initialData.author || '');
+  const [rating, setRating] = useState(initialData.rating || 5);
+  const [content, setContent] = useState(initialData.content || '');
+
+  // ★追加: データ取得完了後（initialDataが変わったとき）に入力欄の表示を同期更新する
+  useEffect(() => {
+    if (initialData) {
+      setAuthor(initialData.author || '');
+      setRating(initialData.rating || 5);
+      setContent(initialData.content || '');
+    }
+  }, [initialData]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -12,7 +21,8 @@ function ReviewForm({ onSubmit, initialData = { author: '', rating: 5, content: 
       return;
     }
     onSubmit({ author, rating: Number(rating), content });
-    // 新規投稿時はフォームをクリア
+    
+    // 新規投稿時のみフォームをクリア
     if (!initialData.id) {
       setAuthor('');
       setRating(5);
