@@ -1,11 +1,6 @@
 package com.example.backend.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,5 +33,13 @@ public class Review {
 
     // 作成日時：自動設定
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
+
+    // 追加：現在日時のセット
+    @PrePersist
+    public void prePersist() {
+        if(this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+    }
 }
