@@ -8,7 +8,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${ALLOWED_ORIGINS:http://localhost:5173}")
+    // デフォルト値に Vercel の URL を追加
+    @Value("${ALLOWED_ORIGINS:http://localhost:5173,https://reviewer-ejob.vercel.app}")
     private String[] allowedOrigins;
 
     @Override
@@ -16,6 +17,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/api/**")
                 .allowedOrigins(allowedOrigins)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*") // ヘッダーも制限なく許可
                 .allowCredentials(true);
     }
 }
