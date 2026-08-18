@@ -34,9 +34,9 @@ REST API
 Render (ホスティング)
 
 データベース
-[MySQL / PostgreSQL / SQLite など使用したDB名]
+[MySQL / PostgreSQL /H2]
 
-ローカル環境での起動方法
+ローカル環境での起動方法S
 1. リポジトリのクローン
 git clone https://github.com/umegaemochi/reviewer.com
 cd reviewer
